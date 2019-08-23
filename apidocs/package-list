@@ -14,3 +14,4 @@ net.openhft.chronicle.core.threads
 net.openhft.chronicle.core.time
 net.openhft.chronicle.core.util
 net.openhft.chronicle.core.values
+net.openhft.chronicle.core.watcher
