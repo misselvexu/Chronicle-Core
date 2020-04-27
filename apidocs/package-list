@@ -2,7 +2,6 @@ net.openhft.chronicle.core
 net.openhft.chronicle.core.annotation
 net.openhft.chronicle.core.cleaner
 net.openhft.chronicle.core.cleaner.impl.jdk8
-net.openhft.chronicle.core.cleaner.impl.jdk9
 net.openhft.chronicle.core.cleaner.impl.reflect
 net.openhft.chronicle.core.cleaner.spi
 net.openhft.chronicle.core.cooler
