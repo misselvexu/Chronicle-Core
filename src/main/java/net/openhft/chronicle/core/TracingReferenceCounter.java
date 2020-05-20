@@ -49,7 +49,10 @@ public final class TracingReferenceCounter implements ReferenceCounted {
     }
 
     private String asString(ReferenceOwner id) {
-        return id == INIT ? "INIT" : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
+        return id == INIT ? "INIT"
+                : id instanceof VanillaReferenceOwner
+                ? id.toString()
+                : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
     }
 
     @Override

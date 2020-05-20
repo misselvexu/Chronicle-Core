@@ -7,8 +7,8 @@ package net.openhft.chronicle.core;
 public interface ReferenceOwner {
     ReferenceOwner INIT = new VanillaReferenceOwner("init");
 
-    static ReferenceOwner temporary() {
-        return Jvm.isReferenceTracing() ? new VanillaReferenceOwner("temporary") : INIT;
+    static ReferenceOwner temporary(String name) {
+        return Jvm.isReferenceTracing() ? new VanillaReferenceOwner(name) : INIT;
     }
 
     class VanillaReferenceOwner implements ReferenceOwner {
