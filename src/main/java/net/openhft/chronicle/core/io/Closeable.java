@@ -20,7 +20,6 @@ import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Collection;
 
 @FunctionalInterface
@@ -40,7 +39,7 @@ public interface Closeable extends java.io.Closeable {
         } else if (o instanceof java.io.Closeable) {
             try {
                 ((java.io.Closeable) o).close();
-            } catch (IOException | IllegalStateException e) {
+            } catch (Exception e) {
                 Jvm.debug().on(Closeable.class, e);
             }
         }

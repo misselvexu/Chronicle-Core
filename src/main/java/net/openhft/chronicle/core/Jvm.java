@@ -91,6 +91,7 @@ public enum Jvm {
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
 
+    private static final boolean IS_REFERENCE_TRACING;
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
@@ -135,6 +136,12 @@ public enum Jvm {
 
         String systemProperties = System.getProperty("system.properties", "system.properties");
         loadSystemProperties(systemProperties);
+
+        boolean tracing = isDebug();
+        //noinspection AssertWithSideEffects
+        assert tracing = true;
+        //noinspection ConstantConditions
+        IS_REFERENCE_TRACING = tracing;
     }
 
     private static MethodHandle get_setAccessible0_Method() {
@@ -308,6 +315,13 @@ public enum Jvm {
     @SuppressWarnings("SameReturnValue")
     public static boolean isDebug() {
         return IS_DEBUG;
+    }
+
+    /**
+     * @return is the reference tracing turned on.
+     */
+    public static boolean isReferenceTracing() {
+        return IS_REFERENCE_TRACING;
     }
 
     /**

@@ -16,88 +16,69 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.io.Closeable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
-
 /**
  * A resource which is reference counted and freed when the refCount drop to 0.
  */
-public interface ReferenceCounted {
+public interface ReferenceCounted extends ReferenceOwner {
 
     /**
      * Reserves a resource or throws an Exception.
      * <p>
      * Each invocation of this method increases the reference count by one.
      *
+     * @param id unique id for this reserve
      * @throws IllegalStateException if the resource has already been freed.
-     *         I.e. its reference counter has as some point reached zero.
+     *                               I.e. its reference counter has as some point reached zero.
      */
-    void reserve();
+    void reserve(ReferenceOwner id) throws IllegalStateException;
 
-     /**
+    default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+        reserve(to);
+        release(from);
+    }
+
+    /**
      * Tries to reserve a resource and returns if the resource could
-     *  be successfully reserved.
+     * be successfully reserved.
      * <p>
      * Each invocation of this method increases the reference count by one.
      *
+     * @param id unique id for this reserve
      * @throws IllegalStateException if the resource has already been freed.
-     *         I.e. its reference counter has as some point reached zero.
+     *                               I.e. its reference counter has as some point reached zero.
      */
-
-    boolean tryReserve();
+    boolean tryReserve(ReferenceOwner id) throws IllegalStateException;
 
     /**
      * Releases a resource.
      * <p>
      * Each invocation of this method decreases the reference count by one.
      *
+     * @param id unique id for the reserve to be released
      * @throws IllegalStateException if the resource has already been freed.
-     *         I.e. its reference counter has as some point reached zero.
+     *                               I.e. its reference counter has as some point reached zero.
      */
-    void release();
+    void release(ReferenceOwner id) throws IllegalStateException;
+
+    /**
+     * Releases a resource and checks this is the last usage.
+     * <p>
+     * Each invocation of this method decreases the reference count by one.
+     *
+     * @param id unique id for the reserve to be released
+     * @throws IllegalStateException if the resource has already been freed.
+     *                               I.e. its reference counter has as some point reached zero.
+     */
+    void releaseLast(ReferenceOwner id) throws IllegalStateException;
+
+    default void releaseLast() throws IllegalStateException {
+        releaseLast(INIT);
+    }
 
     /**
      * Returns the reference count for this resource.
      *
      * @return the reference count for this resource
      */
-    long refCount();
-
-
-    static void releaseAll(@NotNull List<WeakReference<? extends ReferenceCounted>> refCounts) {
-        for (@Nullable WeakReference<? extends ReferenceCounted> refCountRef : refCounts) {
-            if (refCountRef == null)
-                continue;
-            @Nullable ReferenceCounted refCounted = refCountRef.get();
-            if (refCounted != null) {
-                try {
-                    refCounted.release();
-                } catch (IllegalStateException e) {
-                    LoggerFactory.getLogger(Closeable.class).debug("", e);
-                }
-            }
-        }
-    }
-
-    /**
-     * Releases a reference counted object if it is ReferenceCounted.
-     *
-     * @param o to release if ReferenceCounted
-     */
-    static void release(final Object o) {
-        if (o instanceof ReferenceCounted) {
-            @NotNull ReferenceCounted rc = (ReferenceCounted) o;
-            try {
-                rc.release();
-            } catch (IllegalStateException e) {
-                LoggerFactory.getLogger(Closeable.class).debug("", e);
-            }
-        }
-    }
-
+    int refCount();
 }

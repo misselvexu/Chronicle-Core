@@ -160,7 +160,7 @@ public enum ObjectUtils {
 
     @Nullable
     public static <E> E convertTo(@Nullable Class<E> eClass, @Nullable Object o)
-            throws ClassCastException, IllegalArgumentException {
+            throws ClassCastException, IllegalArgumentException, IllegalStateException {
         // shorter path.
         return eClass == null || o == null || eClass.isInstance(o)
                 ? (E) o
@@ -178,7 +178,7 @@ public enum ObjectUtils {
     }
 
     @NotNull
-    public static <E extends Enum<E>> E valueOfIgnoreCase(@NotNull Class<E> eClass, @NotNull String name) {
+    public static <E extends Enum<E>> E valueOfIgnoreCase(@NotNull Class<E> eClass, @NotNull String name) throws IllegalStateException {
         final Map<String, Enum> map = CASE_IGNORE_LOOKUP.get(eClass);
         if (name.startsWith("{") && name.endsWith("}"))
             return getSingletonForEnum(eClass);
@@ -186,7 +186,7 @@ public enum ObjectUtils {
         return anEnum == null ? EnumCache.of(eClass).valueOf(name) : anEnum;
     }
 
-    public static <E extends Enum<E>> E getSingletonForEnum(Class<E> eClass) {
+    public static <E extends Enum<E>> E getSingletonForEnum(Class<E> eClass) throws IllegalStateException {
         E[] enumConstants = eClass.getEnumConstants();
         if (enumConstants.length == 0)
             throw new IllegalStateException("Cannot convert marshallable to " + eClass + " as it doesn't have any instances");
@@ -196,7 +196,7 @@ public enum ObjectUtils {
     }
 
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o)
-            throws ClassCastException, IllegalArgumentException {
+            throws ClassCastException, IllegalArgumentException, IllegalStateException {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
@@ -261,7 +261,7 @@ public enum ObjectUtils {
 
     @NotNull
     private static <E> E convertToArray(@NotNull Class<E> eClass, Object o)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, IllegalStateException {
         int len = sizeOf(o);
         Object array = Array.newInstance(eClass.getComponentType(), len);
         Iterator iter = iteratorFor(o);

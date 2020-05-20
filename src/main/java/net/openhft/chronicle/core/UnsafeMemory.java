@@ -431,7 +431,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void testAndSetInt(long address, long offset, int expected, int value) {
+    public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
         if (UNSAFE.compareAndSwapInt(null, address, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(null, address);
@@ -439,7 +439,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void testAndSetInt(Object object, long offset, int expected, int value) {
+    public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {
         if (UNSAFE.compareAndSwapInt(object, offset, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(object, offset);
@@ -842,7 +842,7 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
-        public void testAndSetInt(long address, long offset, int expected, int value) {
+        public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
             if ((address & ~0x3) == 0) {
                 if (UNSAFE.compareAndSwapInt(null, address, expected, value)) {
                     return;
@@ -862,7 +862,7 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
-        public void testAndSetInt(Object object, long offset, int expected, int value) {
+        public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {
             if ((offset & ~0x3) == 0) {
                 if (UNSAFE.compareAndSwapInt(object, offset, expected, value)) {
                     return;
