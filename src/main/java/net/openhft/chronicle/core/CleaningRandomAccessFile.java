@@ -22,16 +22,17 @@ import java.util.WeakHashMap;
  */
 
 public class CleaningRandomAccessFile extends RandomAccessFile {
-    static final Map<RandomAccessFile, StackTrace> FILES = Collections.synchronizedMap(new WeakHashMap<>());
+    private static final Map<RandomAccessFile, StackTrace> FILES = Collections.synchronizedMap(new WeakHashMap<>());
+    private final String fileName;
     volatile boolean closed = false;
 
-    public CleaningRandomAccessFile(String name, String mode) throws FileNotFoundException {
-        super(name, mode);
-        FILES.put(this, new StackTrace());
+    public CleaningRandomAccessFile(String fileName, String mode) throws FileNotFoundException {
+        this(new File(fileName), mode);
     }
 
     public CleaningRandomAccessFile(File file, String mode) throws FileNotFoundException {
         super(file, mode);
+        this.fileName = file.getAbsolutePath();
         FILES.put(this, new StackTrace());
     }
 
@@ -51,7 +52,9 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        if (!closed)
+        if (!closed) {
+            Jvm.warn().on(getClass(), "File was discarded rather than close()ed " + fileName);
             Closeable.closeQuietly(this);
+        }
     }
 }
