@@ -36,6 +36,14 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
         FILES.put(this, new StackTrace());
     }
 
+    @Override
+    public String toString() {
+        return "CleaningRandomAccessFile{" +
+                "fileName='" + fileName + '\'' +
+                ", closed=" + closed +
+                '}';
+    }
+
     public static Map<RandomAccessFile, StackTrace> openFiles() {
         synchronized (FILES) {
             return new LinkedHashMap<>(FILES);

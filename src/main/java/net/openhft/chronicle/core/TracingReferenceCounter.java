@@ -103,10 +103,8 @@ public final class TracingReferenceCounter implements ReferenceCounted {
     @Override
     public void releaseLast(ReferenceOwner id) throws IllegalStateException {
         synchronized (references) {
-            if (references.size() == 1) {
+            if (references.size() <= 1) {
                 release(id);
-            } else if (references.isEmpty()) {
-                throw new IllegalStateException("Not reserved by " + asString(id), init);
             } else {
                 try {
                     release(id);

@@ -52,7 +52,8 @@ public final class ReferenceCounter implements ReferenceCounted {
 
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
-        // nothing to do.
+        if (refCount() <= 0)
+            throw new IllegalStateException("Released");
     }
 
     @Override
