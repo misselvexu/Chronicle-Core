@@ -17,16 +17,13 @@ public final class TracingReferenceCounter implements ReferenceCounted {
     private final Map<ReferenceOwner, StackTrace> releases = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Runnable onRelease;
     private final StackTrace init;
+    private final boolean releaseOnOne;
 
-    TracingReferenceCounter(final Runnable onRelease) {
+    TracingReferenceCounter(final Runnable onRelease, boolean releaseOnOne) {
         this.onRelease = onRelease;
         init = stackTrace("init", INIT);
         references.put(INIT, init);
-    }
-
-    @NotNull
-    public static TracingReferenceCounter onReleased(final Runnable onRelease) {
-        return new TracingReferenceCounter(onRelease);
+        this.releaseOnOne = releaseOnOne;
     }
 
     @Override
@@ -91,6 +88,8 @@ public final class TracingReferenceCounter implements ReferenceCounted {
             if (references.isEmpty()) {
                 // prevent this being called more than once.
                 onRelease.run();
+            } else if (releaseOnOne && references.size() == 1) {
+                releaseLast(INIT);
             }
         }
     }

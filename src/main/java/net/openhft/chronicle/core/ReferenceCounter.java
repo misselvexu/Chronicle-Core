@@ -24,16 +24,25 @@ public final class ReferenceCounter implements ReferenceCounted {
 
     private final AtomicInteger value = new AtomicInteger(1);
     private final Runnable onRelease;
+    private final boolean releaseOnOne;
 
-    ReferenceCounter(final Runnable onRelease) {
+    ReferenceCounter(final Runnable onRelease, boolean releaseOnOne) {
         this.onRelease = onRelease;
+        this.releaseOnOne = releaseOnOne;
     }
 
     @NotNull
     public static ReferenceCounted onReleased(final Runnable onRelease) {
         return Jvm.isReferenceTracing()
-                ? new TracingReferenceCounter(onRelease)
-                : new ReferenceCounter(onRelease);
+                ? new TracingReferenceCounter(onRelease, false)
+                : new ReferenceCounter(onRelease, false);
+    }
+
+    @NotNull
+    public static ReferenceCounted releaseOnOne(final Runnable onRelease) {
+        return Jvm.isReferenceTracing()
+                ? new TracingReferenceCounter(onRelease, true)
+                : new ReferenceCounter(onRelease, true);
     }
 
     @Override
@@ -76,9 +85,12 @@ public final class ReferenceCounter implements ReferenceCounted {
             if (v <= 0) {
                 throw new IllegalStateException("Released");
             }
-            if (value.compareAndSet(v, v - 1)) {
-                if (v == 1)
+            int count = v - 1;
+            if (value.compareAndSet(v, count)) {
+                if (count == 0)
                     onRelease.run();
+                else if (releaseOnOne && count == 1)
+                    releaseLast(INIT);
                 break;
             }
         }
