@@ -158,6 +158,26 @@ public class ReferenceCounterTest {
         }
     }
 
+    @Test
+    public void preventEarlyInitForReleaseOnOne() {
+        StateMachine sm = new StateMachine();
+        TracingReferenceCounter trc = new TracingReferenceCounter(sm, true);
+        assertEquals(1, trc.refCount());
+        trc.reserve(ro1);
+        assertEquals(2, trc.refCount());
+        try {
+            trc.release(ReferenceOwner.INIT);
+            fail();
+        } catch (IllegalStateException ignored) {
+        }
+        assertEquals(2, trc.refCount());
+        sm.state = State.OK;
+        trc.release(ro1);
+        assertEquals(State.RELEASED, sm.state);
+        assertEquals(0, trc.refCount());
+        // called implicitly trc.releaseLast();
+    }
+
     enum State {
         NOT_OK,
         OK,

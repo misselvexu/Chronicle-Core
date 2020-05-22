@@ -71,6 +71,9 @@ public final class TracingReferenceCounter implements ReferenceCounted {
         if (Jvm.isDebug())
             System.out.println(Thread.currentThread().getName() + " " + uniqueId() + " - release " + asString(id));
         synchronized (references) {
+            if (releaseOnOne && id == INIT && references.containsKey(INIT) && references.size() > 1) {
+                throw new IllegalStateException("INIT has to be the last release for releaseOnOne");
+            }
             if (references.remove(id) == null) {
                 StackTrace stackTrace = releases.get(id);
                 if (stackTrace == null) {

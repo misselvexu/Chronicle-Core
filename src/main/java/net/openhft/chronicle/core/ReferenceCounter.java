@@ -33,16 +33,14 @@ public final class ReferenceCounter implements ReferenceCounted {
 
     @NotNull
     public static ReferenceCounted onReleased(final Runnable onRelease) {
-        return Jvm.isReferenceTracing()
-                ? new TracingReferenceCounter(onRelease, false)
-                : new ReferenceCounter(onRelease, false);
+        return onReleased(onRelease, false);
     }
 
     @NotNull
-    public static ReferenceCounted releaseOnOne(final Runnable onRelease) {
+    public static ReferenceCounted onReleased(final Runnable onRelease, boolean releaseOnOne) {
         return Jvm.isReferenceTracing()
-                ? new TracingReferenceCounter(onRelease, true)
-                : new ReferenceCounter(onRelease, true);
+                ? new TracingReferenceCounter(onRelease, releaseOnOne)
+                : new ReferenceCounter(onRelease, releaseOnOne);
     }
 
     @Override
