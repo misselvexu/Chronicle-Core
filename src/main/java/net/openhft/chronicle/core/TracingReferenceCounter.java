@@ -40,7 +40,7 @@ public final class TracingReferenceCounter implements ReferenceCounted {
             if (stackTrace == null)
                 references.putIfAbsent(id, stackTrace("reserve", id));
             else
-                throw new IllegalStateException("Already reserved resource here", stackTrace);
+                throw new IllegalStateException("Already reserved resource by " + id + " here", stackTrace);
         }
         releases.remove(id);
     }
