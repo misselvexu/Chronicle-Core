@@ -44,10 +44,6 @@ public enum IOTools {
         return deleteDirWithFiles(dir, 1);
     }
 
-    public static boolean deleteDirWithFiles(@NotNull String dir) throws IORuntimeException {
-        return deleteDirWithFiles(dir, 20);
-    }
-
     public static boolean deleteDirWithFiles(@NotNull String... dirs) throws IORuntimeException {
         boolean result = false;
         for (String dir : dirs) {
@@ -85,6 +81,21 @@ public enum IOTools {
             }
         });
         return dir.delete();
+    }
+
+    public static void deleteDirWithFilesOrThrow(@NotNull String dir) throws IORuntimeException {
+        deleteDirWithFiles(new File(dir));
+    }
+
+    /**
+     * Canonical usage is to call this *before* your test so you fail fast if you can't delete
+     * @param dir dir
+     * @throws IORuntimeException
+     */
+    public static void deleteDirWithFilesOrThrow(@NotNull File dir) throws IORuntimeException {
+        if (! deleteDirWithFiles(dir))
+            if (dir.exists())
+                throw new AssertionError("Could not delete " + dir);
     }
 
     @Deprecated
