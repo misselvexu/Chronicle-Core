@@ -1,11 +1,13 @@
 /*
- * Copyright 2016-2020 https://chronicle.software
+ * Copyright 2016-2020 Chronicle Software
+ *
+ * https://chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -90,6 +92,7 @@ public enum Jvm {
     private static final MethodHandle setAccessible0_Method;
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
+    private static final boolean RESOURCE_TRACING;
 
     private static final boolean IS_REFERENCE_TRACING;
     static {
@@ -137,11 +140,15 @@ public enum Jvm {
         String systemProperties = System.getProperty("system.properties", "system.properties");
         loadSystemProperties(systemProperties);
 
-        boolean tracing = isDebug();
-        //noinspection AssertWithSideEffects
-        assert tracing = true;
-        //noinspection ConstantConditions
-        IS_REFERENCE_TRACING = tracing;
+        String resourceTracing = System.getProperty("jvm.resource.tracing");
+        if (resourceTracing == null) {
+            boolean assertOn = false;
+            assert assertOn = true;
+            RESOURCE_TRACING = Jvm.isDebug() || assertOn;
+        } else {
+            RESOURCE_TRACING = resourceTracing.isEmpty() || Boolean.parseBoolean(resourceTracing);
+        }
+
     }
 
     private static MethodHandle get_setAccessible0_Method() {
@@ -795,6 +802,10 @@ public enum Jvm {
 
     public static boolean dontChain(Class tClass) {
         return tClass.getAnnotation(DontChain.class) != null || tClass.getName().startsWith("java");
+    }
+
+    public static boolean isResourceTracing() {
+        return RESOURCE_TRACING;
     }
 
     private static class ChainedSignalHandler implements SignalHandler {

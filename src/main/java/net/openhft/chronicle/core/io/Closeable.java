@@ -1,5 +1,7 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 Chronicle Software
+ *
+ * https://chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +24,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-@FunctionalInterface
 public interface Closeable extends java.io.Closeable {
 
-    static void closeQuietly(@NotNull Object... closables) {
-        closeQuietly((Object) closables);
+    static void closeQuietly(@NotNull Object... closeables) {
+        closeQuietly((Object) closeables);
     }
 
     static void closeQuietly(@Nullable Object o) {
@@ -51,11 +52,10 @@ public interface Closeable extends java.io.Closeable {
     @Override
     void close();
 
+    @Deprecated
     default void notifyClosing() {
         // take an action before everything else closes.
     }
 
-    default boolean isClosed() {
-        throw new UnsupportedOperationException("todo");
-    }
+    boolean isClosed();
 }
