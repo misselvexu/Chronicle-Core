@@ -4,11 +4,13 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
+
 public interface ReferenceOwner {
     ReferenceOwner INIT = new VanillaReferenceOwner("init");
 
     static ReferenceOwner temporary(String name) {
-        return Jvm.isReferenceTracing() ? new VanillaReferenceOwner(name) : INIT;
+        return Jvm.isResourceTracing() ? new VanillaReferenceOwner(name) : INIT;
     }
 
     class VanillaReferenceOwner implements ReferenceOwner {
@@ -23,6 +25,11 @@ public interface ReferenceOwner {
             return "VanillaReferenceOwner{" +
                     "name='" + name + '\'' +
                     '}';
+        }
+
+        @UsedViaReflection
+        public boolean isClosed() {
+            return false;
         }
     }
 }

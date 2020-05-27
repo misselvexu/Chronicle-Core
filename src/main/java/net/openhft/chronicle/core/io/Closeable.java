@@ -24,10 +24,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
-public interface Closeable extends java.io.Closeable {
+public interface Closeable extends java.io.Closeable, IsClosedable {
 
-    static void closeQuietly(@NotNull Object... closeables) {
-        closeQuietly((Object) closeables);
+    static void closeQuietly(@NotNull Object... closables) {
+        closeQuietly((Object) closables);
     }
 
     static void closeQuietly(@Nullable Object o) {
@@ -52,10 +52,7 @@ public interface Closeable extends java.io.Closeable {
     @Override
     void close();
 
-    @Deprecated
     default void notifyClosing() {
         // take an action before everything else closes.
     }
-
-    boolean isClosed();
 }

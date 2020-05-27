@@ -4,8 +4,10 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.io.Closeable;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -140,5 +142,33 @@ public final class TracingReferenceCounter implements ReferenceCounted {
                 + Thread.currentThread().getName() + " "
                 + oper + " "
                 + asString(ro));
+    }
+
+    @Override
+    public void checkReferences() {
+        IllegalStateException ise = new IllegalStateException("Retained reference closed");
+
+        for (ReferenceOwner referenceOwner : references.keySet()) {
+            if (referenceOwner instanceof Closeable) {
+                try {
+                    boolean closed = ((Closeable) referenceOwner).isClosed();
+                    if (closed)
+                        ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner), ((Closeable) referenceOwner).closedHere()));
+                } catch (Throwable t) {
+                    ise.addSuppressed(new IllegalStateException("Closed unknown " + asString(referenceOwner), t));
+                }
+            } else {
+                try {
+                    Method isClosed = referenceOwner.getClass().getDeclaredMethod("isClosed");
+                    boolean closed = (Boolean) isClosed.invoke(referenceOwner);
+                    if (closed)
+                        ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner), ((Closeable) referenceOwner).closedHere()));
+                } catch (Exception e) {
+                    ise.addSuppressed(new IllegalStateException("Closed unknown " + asString(referenceOwner), e));
+                }
+            }
+        }
+        if (ise.getSuppressed().length > 0)
+            throw ise;
     }
 }

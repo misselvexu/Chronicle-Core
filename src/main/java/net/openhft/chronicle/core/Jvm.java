@@ -94,7 +94,6 @@ public enum Jvm {
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
 
-    private static final boolean IS_REFERENCE_TRACING;
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
@@ -327,8 +326,8 @@ public enum Jvm {
     /**
      * @return is the reference tracing turned on.
      */
-    public static boolean isReferenceTracing() {
-        return IS_REFERENCE_TRACING;
+    public static boolean isResourceTracing() {
+        return RESOURCE_TRACING;
     }
 
     /**
@@ -802,10 +801,6 @@ public enum Jvm {
 
     public static boolean dontChain(Class tClass) {
         return tClass.getAnnotation(DontChain.class) != null || tClass.getName().startsWith("java");
-    }
-
-    public static boolean isResourceTracing() {
-        return RESOURCE_TRACING;
     }
 
     private static class ChainedSignalHandler implements SignalHandler {

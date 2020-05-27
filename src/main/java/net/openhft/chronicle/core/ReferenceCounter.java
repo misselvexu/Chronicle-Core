@@ -40,7 +40,7 @@ public final class ReferenceCounter implements ReferenceCounted {
 
     @NotNull
     public static ReferenceCounted onReleased(final Runnable onRelease, boolean releaseOnOne) {
-        return Jvm.isReferenceTracing()
+        return Jvm.isResourceTracing()
                 ? new TracingReferenceCounter(onRelease, releaseOnOne)
                 : new ReferenceCounter(onRelease, releaseOnOne);
     }
@@ -134,5 +134,8 @@ public final class ReferenceCounter implements ReferenceCounted {
         return Long.toString(value.get());
     }
 
-
+    @Override
+    public void checkReferences() {
+        // no tracing enabled.
+    }
 }

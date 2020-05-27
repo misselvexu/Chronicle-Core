@@ -83,4 +83,8 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @return the reference count for this resource
      */
     int refCount();
+
+    default void checkReferences() {
+        throw new UnsupportedOperationException();
+    }
 }
